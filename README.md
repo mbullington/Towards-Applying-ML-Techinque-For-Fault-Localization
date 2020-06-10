@@ -67,6 +67,10 @@ Github Repository for Paper "Towards Applying Machine Learning Technique For Fau
 
 ## Step 5: Training and Testing
 
+```sh
+pip3 install sklearn pandas matplotlib imblearn
+```
+
 * Function Level
 
   Open and run [`Function_Models_1.ipynb`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Function_Models_1.ipynb) and [`Function_Models_2.ipynb`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Function_Models_2.ipynb). Function_Models_1.ipynb contains LR, NB, SGD, RF, DT and kNN models. Function_Models_2.ipynb contains SVM and MLP models. We can use `.csv` files in [Function_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Function_Level_Dataset) or generated from Step 4.
