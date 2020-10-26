@@ -1,3 +1,6 @@
 .ipynb_checkpoints
 lang_*_*
 build
+temp
+clean_fixed_lines
+clean_buggy_lines

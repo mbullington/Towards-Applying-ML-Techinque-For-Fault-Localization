@@ -2,16 +2,42 @@
 
 Github Repository for Paper "Towards Applying Machine Learning Technique For Fault Localization" as the Undergraduate Honor Thesis
 
-*Note: Step 1 to Step 4 are preprocessing parts. To start training and testing immediately, we can start from Step 5 with `.csv` files in either [Function_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Function_Level_Dataset) or [Block_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Block_Level_Dataset).*
+**Important**: Instructions have been tested on macOS but will probably work on Ubuntu Linux as well with minimal modifications.
+
+**Note**: Step 1 to Step 4 are preprocessing parts. To start training and testing immediately, we can start from Step 5 with `.csv` files in either [Function_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Function_Level_Dataset) or [Block_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Block_Level_Dataset).
 
 ## Step 1: Source Code Database
-* Download the source code collection from Defects4J project.
+* Follow the setup guide for Defects4J and put the appropriate items in your `PATH` variable.
 
   [Defects4J](https://github.com/rjust/defects4j)
 
-* Use `checkout` command to retrieve all buggy and fixed versions.
+* For macOS, we need to install a few dependencies:
 
-  e.g. `defects4j checkout -p Lang -v 1b -w /tmp/lang_1_buggy`
+```sh
+# Needed for defects4j.
+brew install svn
+perl -MCPAN -e 'install DBI'
+```
+
+* Create lists of buggy and fixed lines
+
+We need to generate a list of projects and bugs we want to track, and their buggy & fixed lines. You can use scripts
+in the following way to do this:
+
+**First:** Tweak input inside of `input/all.csv`. 
+
+```sh
+# recreate our temp directory
+rm -rf ./temp && mkdir ./temp
+# fetch all projects that have bugs, and output all their lines to temp
+# this may take significant time
+./scripts/get_all_lines.sh ./input/all.csv ./temp
+# compress all the buggy lines and all the fixed lines into 2 files
+./scripts/merge_all_lines.sh ./temp ./clean_buggy_lines ./clean_fixed_line
+# OPTIONAL: These directories are needed for 'Extract function level and block level source code snippets', but
+# eventually clean your /tmp folder.
+./scripts/clean_tmp.sh
+```
 
 * Extract function level and block level source code snippets.
 
