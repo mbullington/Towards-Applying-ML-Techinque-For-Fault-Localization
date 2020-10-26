@@ -39,3 +39,6 @@ for fi in $TEMP_DIR/*.fixed.lines ; do
         fi
     done < $fi
 done
+
+rm -rf temp_dir
+echo "DONE!"

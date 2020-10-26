@@ -4,16 +4,15 @@ package uk.ac.shef;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.stmt.BlockStmt;
 
 import java.io.FileInputStream;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class Parser {
 
-  private Map<Integer, Set<Integer>> statements = new LinkedHashMap<Integer, Set<Integer>>();
+  private Map<Integer, Statement> statements = new LinkedHashMap<Integer, Statement>();
 
   private final String sourceName;
 
@@ -27,7 +26,7 @@ public class Parser {
     this.sourceName = sourceName;
   }
 
-  public Map<Integer, Set<Integer>> getStatements() {
+  public Map<Integer, Statement> getStatements() {
     return this.statements;
   }
 
@@ -71,50 +70,39 @@ public class Parser {
       return ;
     }
 
-    if (node.getChildrenNodes().isEmpty()) {
-      Integer line_number = node.getParentNode().getBeginLine();
-
-      // is it a statement?
-      if (node.getClass().getCanonicalName()
-          .startsWith("com.github.javaparser.ast.stmt.") &&
-          node.getBeginLine() == node.getEndLine()) {
-        line_number = node.getBeginLine();
-      } else if (node.getParentNode().getBeginLine() == node.getParentNode().getEndLine()) {
-
-        Node clone = node;
-        Node parent = null;
-
-        // to handle special cases: parameters, binary expressions, etc
-        // search for the next 'Declaration' or 'Statement'
-        while ((parent = clone.getParentNode()) != null) {
-          if ((parent.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.stmt."))
-              || (parent.getClass().getCanonicalName()
-                  .equals("com.github.javaparser.ast.body.VariableDeclarator"))
-              || (parent.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.body.")
-                  && parent.getClass().getCanonicalName().endsWith("Declaration"))) {
-            line_number = parent.getBeginLine();
-            break;
-          }
-
-          clone = parent;
-        }
-      }
-
-      Set<Integer> lines = null;
-
-      if (this.statements.containsKey(line_number)) {
-        lines = this.statements.get(line_number);
-      } else {
-        lines = new LinkedHashSet<Integer>();
-        lines.add(line_number);
-      }
-
-      lines.add(node.getBeginLine());
-      this.statements.put(line_number, lines);
-    } else {
+    if (!node.getChildrenNodes().isEmpty()) {
       for (Node child : node.getChildrenNodes()) {
         explore(space + " ", child);
       }
     }
+
+    // WE ARE A LEAF FROM THIS POINT FORWARD.
+  
+    Node rootNode = node;
+    while (rootNode != null && !(rootNode instanceof BlockStmt)) {
+      rootNode = rootNode.getParentNode();
+    }
+
+    if (rootNode == null) {
+      return;
+    }
+
+    // For if statements and similar, try to get one up from the block.
+    // This would be more helpful in general.
+    if (rootNode.getParentNode() != null) {
+      rootNode = rootNode.getParentNode();
+    }
+
+    Integer lineNumber = rootNode.getBeginLine();
+    Statement statement = null;
+
+    if (statements.containsKey(lineNumber)) {
+      statement = statements.get(lineNumber);
+    } else {
+      statement = new Statement(rootNode);
+      statements.put(lineNumber, statement);
+    }
+
+    statement.lines.add(node.getBeginLine());
   }
 }

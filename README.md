@@ -41,6 +41,20 @@ rm -rf ./temp && mkdir ./temp
 
 * Extract function level and block level source code snippets.
 
+> This is done using JavaParser project which was modified from here: https://git.psu.edu/yzl5497/fault-localization-java/-/tree/master/analysis/java-parser In the temp folder, it creates a set of JSON files that map all lines in the source code to their nearest function
+and its source code. This is the first half, finding the function-level snippets.
+
+```sh
+# runs our scripts inside java-parser, but using a helper in 'scripts/'
+./scripts/run_javaparser_function.sh
+```
+
+For each of the four types: buggy function, buggy block, fixed function, fixed block
+
+```sh
+./scripts/generate_code.sh ./clean_buggy_lines b ./temp_block code_block_buggy/
+```
+
   The LLVM Pass for function level is called [`Function_Extract_Pass.cpp`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Code_Snippet_Extarction/Function_Extract_Pass.cpp), and that for block level is called [`Block_Extract_Pass.cpp`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Code_Snippet_Extarction/Block_Extract_Pass.cpp). Make and compile each project using LLVM. The result will be printed to stdout. According to [`clean_buggy_lines`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/clean_buggy_lines) and [`clean_fixed_lines`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/clean_fixed_lines), we can allocate the source files in projects. We can then easily write a script to split the functions into single files with extension called `.infunc` and similar for blocks called `.block`. The extensions are just to ensure the consistency between our scripts.
 
 * Remove Duplicates.

@@ -2,9 +2,8 @@
 #$ -l h_rt=8:00:00
 #$ -l mem=4G
 #$ -l rmem=2G
-module load apps/java/1.7.0u55
 export MALLOC_ARENA_MAX=1
-export _JAVA_OPTIONS="-XX:MaxHeapSize=256m -Xmx1024m"
+export _JAVA_OPTIONS="-XX:MaxHeapSize=4G -Xmx4G"
 
 # get node name. if something goes wrong this will be useful to inform
 # iceberg's admins
@@ -18,12 +17,16 @@ die() {
   exit 1
 }
 
+PWD=`pwd`
+JAVA_PARSER_JAR="$PWD/target/java-parser-0.0.1-SNAPSHOT-jar-with-dependencies.jar"
+
 # Check whether D4J_HOME is set
 [ "$D4J_HOME" != "" ] || die "D4J_HOME is not set!"
-# Check whether JAVA_PARSER_JAR is set
-[ "$JAVA_PARSER_JAR" != "" ] || die "JAVA_PARSER_JAR is not set!"
 
-EXT="source-code.lines"
+# Put the defects4j command on the PATH
+PATH=$PATH:$D4J_HOME/framework/bin
+
+EXT="json"
 
 ##
 # Arguments
@@ -42,12 +45,12 @@ for bf in b f; do
   mkdir -p $TMP_DIR
 
   echo "* Checking out $pid-${bid}${bf}"
-  $D4J_HOME/framework/bin/defects4j checkout -p $pid -v ${bid}${bf} -w $TMP_DIR || die "Checkout failed!"
+  defects4j checkout -p $pid -v ${bid}${bf} -w $TMP_DIR || die "Checkout failed!"
 
   pushd . > /dev/null 2>&1 
   cd $TMP_DIR
     echo "* Getting dir.src.classes path"
-    DIR_SRC_CLASSES=$($D4J_HOME/framework/bin/defects4j export -p dir.src.classes)
+    DIR_SRC_CLASSES=$(defects4j export -p dir.src.classes)
     DIR_SRC_CLASSES="$TMP_DIR/$DIR_SRC_CLASSES"
   popd > /dev/null 2>&1
 
