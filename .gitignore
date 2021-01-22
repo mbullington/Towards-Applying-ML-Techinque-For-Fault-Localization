@@ -7,3 +7,4 @@ clean_fixed_lines
 clean_buggy_lines
 code_*
 java-parser/target
+.DS_Store
