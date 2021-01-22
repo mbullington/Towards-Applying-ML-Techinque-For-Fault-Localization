@@ -33,7 +33,7 @@ rm -rf ./temp && mkdir ./temp
 # this may take significant time
 ./scripts/get_all_lines.sh ./input/all.csv ./temp
 # compress all the buggy lines and all the fixed lines into 2 files
-./scripts/merge_all_lines.sh ./temp ./clean_buggy_lines ./clean_fixed_line
+./scripts/merge_all_lines.sh ./temp ./clean_buggy_lines ./clean_fixed_lines
 # OPTIONAL: These directories are needed for 'Extract function level and block level source code snippets', but
 # eventually clean your /tmp folder.
 ./scripts/clean_tmp.sh
@@ -52,14 +52,18 @@ and its source code. This is the first half, finding the function-level snippets
 For each of the four types: buggy function, buggy block, fixed function, fixed block
 
 ```sh
-./scripts/generate_code.sh ./clean_buggy_lines b ./temp_block code_block_buggy/
+./scripts/generate_code.sh ./clean_fixed_lines f ./temp_block code_block_fixed/
 ```
 
   The LLVM Pass for function level is called [`Function_Extract_Pass.cpp`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Code_Snippet_Extarction/Function_Extract_Pass.cpp), and that for block level is called [`Block_Extract_Pass.cpp`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Code_Snippet_Extarction/Block_Extract_Pass.cpp). Make and compile each project using LLVM. The result will be printed to stdout. According to [`clean_buggy_lines`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/clean_buggy_lines) and [`clean_fixed_lines`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/clean_fixed_lines), we can allocate the source files in projects. We can then easily write a script to split the functions into single files with extension called `.infunc` and similar for blocks called `.block`. The extensions are just to ensure the consistency between our scripts.
 
 * Remove Duplicates.
-  
-  Since there are duplicated files containing the same code snippet. We need to remove the duplicated ones. Run [`clean_dup.py`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/clean_dup.py) several times until there is no more duplicate.
+
+Keep running this until there are 0 duplicates.
+
+```sh
+python clean_dup.py ./code_block_fixed/
+```
  
 * Store the source file seperately in directories.
 
@@ -118,10 +122,3 @@ pip3 install sklearn pandas matplotlib imblearn
 * Block Level
 
   Open and run [`Block_Models_1.ipynb`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Block_Models_1.ipynb) and [`Block_Models_2.ipynb`](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/blob/master/Block_Models_2.ipynb). Block_Models_1.ipynb contains LR, NB, SGD, RF, DT and kNN models. Block_Models_2.ipynb contains SVM and MLP models. We can use `.csv` files in [Block_Level_Dataset](https://github.com/jxm6165/Towards-Applying-ML-Techinque-For-Fault-Localization/tree/master/Block_Level_Dataset) or generated from Step 4.
-
-## More Resources about LLVM
-
-- Ammar Ben Khadra LLVM Pass Tutorial ([link](https://github.com/abenkhadra/llvm-pass-tutorial/blob/master/README.md))
-- Adrian Sampson's blog entry "LLVM for Grad Students" ([link](http://adriansampson.net/blog/llvm.html))
-- LLVM documentation: Writing an LLVM pass ([link](http://llvm.org/docs/WritingAnLLVMPass.html))
-- LLVM documentation: Building LLVM with CMake ([link](http://llvm.org/docs/CMake.html#cmake-out-of-source-pass))

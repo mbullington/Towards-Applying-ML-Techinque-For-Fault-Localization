@@ -27,7 +27,7 @@ class InteractivePredictor:
             return file.readlines()
 
     def predict(self):
-        for input_filename in glob.glob('/Users/jianyumao/defects4j/GoodBlock/*.block'):
+        for input_filename in glob.glob('/Users/plumbus/School/Towards-Applying-ML-Techinque-For-Fault-Localization/code_block_fixed/*.block'):
             #input_filename = 'Input.java'
             #print('Starting interactive prediction...')
             #print(

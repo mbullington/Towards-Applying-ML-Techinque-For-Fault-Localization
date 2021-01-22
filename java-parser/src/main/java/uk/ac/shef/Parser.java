@@ -4,7 +4,6 @@ package uk.ac.shef;
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.stmt.BlockStmt;
 
 import java.io.FileInputStream;
 import java.util.LinkedHashMap;
@@ -20,7 +19,7 @@ public class Parser {
    * Parser constructor
    *
    * @param Statement-suspiciousness vector
-   * @param Path to a Java source code
+   * @param Path                     to a Java source code
    */
   public Parser(String sourceName) {
     this.sourceName = sourceName;
@@ -50,24 +49,26 @@ public class Parser {
     // explore tree
     explore(" ", cu);
 
-    /*for (Integer statement : this.statements.keySet()) {
-      System.out.println(statement + " -> " + this.statements.get(statement).toString());
-    }*/
+    /*
+     * for (Integer statement : this.statements.keySet()) {
+     * System.out.println(statement + " -> " +
+     * this.statements.get(statement).toString()); }
+     */
   }
 
   private void explore(String space, Node node) {
-    /*System.out.println(space + node.getBeginLine() + ":" + node.getEndLine() + " type: "
-        + node.getClass().getCanonicalName() + " has children? "
-        + (node.getChildrenNodes().isEmpty() ? "*false*" : "true"));*/
+    /*
+     * System.out.println(space + node.getBeginLine() + ":" + node.getEndLine() +
+     * " type: " + node.getClass().getCanonicalName() + " has children? " +
+     * (node.getChildrenNodes().isEmpty() ? "*false*" : "true"));
+     */
 
     // ignore everything related to comments
-    if (node.getClass().getCanonicalName()
-        .startsWith("com.github.javaparser.ast.comments.")) {
-      return ;
+    if (node.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.comments.")) {
+      return;
     }
-    if (node.getClass().getCanonicalName()
-        .equals("com.github.javaparser.ast.body.EnumConstantDeclaration")) {
-      return ;
+    if (node.getClass().getCanonicalName().equals("com.github.javaparser.ast.body.EnumConstantDeclaration")) {
+      return;
     }
 
     if (!node.getChildrenNodes().isEmpty()) {
@@ -77,10 +78,31 @@ public class Parser {
     }
 
     // WE ARE A LEAF FROM THIS POINT FORWARD.
-  
-    Node rootNode = node;
-    while (rootNode != null && !(rootNode instanceof BlockStmt)) {
-      rootNode = rootNode.getParentNode();
+
+    // note: find control flow graph, extract block from that?
+
+    Node rootNode = node.getParentNode();
+    // is it a statement?
+    if (node.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.stmt.")
+        && node.getBeginLine() == node.getEndLine()) {
+      rootNode = node;
+    } else if (rootNode != null && rootNode.getBeginLine() == rootNode.getEndLine()) {
+      Node clone = node;
+      Node parent = null;
+
+      // to handle special cases: parameters, binary expressions, etc
+      // search for the next 'Declaration' or 'Statement'
+      while ((parent = clone.getParentNode()) != null) {
+        if ((parent.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.stmt."))
+            || (parent.getClass().getCanonicalName().equals("com.github.javaparser.ast.body.VariableDeclarator"))
+            || (parent.getClass().getCanonicalName().startsWith("com.github.javaparser.ast.body.")
+                && parent.getClass().getCanonicalName().endsWith("Declaration"))) {
+          rootNode = parent;
+          break;
+        }
+
+        clone = parent;
+      }
     }
 
     if (rootNode == null) {

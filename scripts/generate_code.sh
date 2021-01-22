@@ -26,11 +26,11 @@ while read p; do
 
     JSON_KEY=$(cat $JSON_DIR/$ID$SUFFIX.json | jq .keyMap.\"$SIGNATURE_FIXED\")
 
-    if [ -z "$JSON_KEY" ]
+    if [ "$JSON_KEY" == "null" ]
     then
         echo "skipped a line "$SIGNATURE_FIXED
     else
         SOURCE_CODE=$(cat $JSON_DIR/$ID$SUFFIX.json | jq -r .$JSON_KEY)
-        echo $SOURCE_CODE >> $OUTPUT_DIR/${SIGNATURE_FIXED//\//-}.block
+        echo "$SOURCE_CODE" > $OUTPUT_DIR/${SIGNATURE_FIXED//\//-}.block
     fi
 done < $CLEAN_LINES

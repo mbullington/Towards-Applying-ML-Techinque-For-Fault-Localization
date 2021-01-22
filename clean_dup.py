@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys
 import os
 import hashlib
@@ -98,12 +98,13 @@ def check_for_duplicates(paths, hash=hashlib.sha1):
             else:
                 hashes_full[full_hash] = filename
     
-    print "All dup count: %d" % count
+    print("All dup count: %d", count)
 if sys.argv[1:]:
     check_for_duplicates(sys.argv[1:])
     duplist = list(dict.fromkeys(duplist))
     #print(len(duplist))
     for file in duplist:
+        print(file)
         os.remove(file)
 else:
-    print "Please pass the paths to check as parameters to the script"
+    print("Please pass the paths to check as parameters to the script")
